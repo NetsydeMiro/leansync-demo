@@ -54,18 +54,24 @@ export const Client: React.FC<ClientProps> = (props) => {
     }
 
     return (
-        <div>
-            <h2>Client {props.clientIndex}</h2>
-            <button onClick={removeClient}>Remove</button>
-            <br />
+        <div className='computer client'>
+            <h2 className='computer-header'>
+                Client 
+                <a className='remove' title='Remove Client' onClick={removeClient}>{String.fromCharCode(10008)}</a>
+            </h2>
             <label>
                 <input type='checkbox' onClick={toggleOffline} />
                 Is Offline
             </label>
-            <br />
-            {noteComponents}
-            <button onClick={addNote}>New</button>
-            <button onClick={requestSync}>Sync</button>
+            <div className='computer-wrapper client-wrapper'>
+                <div className='client-notes'>
+                    {noteComponents}
+                </div>
+                <div className='client-buttons'>
+                    <button onClick={addNote}>New</button>
+                    <button onClick={requestSync}>Sync</button>
+                </div>
+            </div>
         </div>
     )
 }

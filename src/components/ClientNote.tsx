@@ -9,16 +9,14 @@ export interface ClientNoteProps {
 
 export const ClientNote = (props: ClientNoteProps) => {
     let { hasChanges } = props
-    let className = classNames({ hasChanges })
+    let className = classNames({ 'client-note': true, hasChanges })
 
     return (
-        <div>
-            <textarea
-                value={props.noteText}
-                onChange={(e) => props.onChange(e.target.value)}
-                className={className}
-            >
-            </textarea>
-        </div>
+        <textarea
+            value={props.noteText}
+            onChange={(e) => props.onChange(e.target.value)}
+            className={className}
+        >
+        </textarea>
     )
 }

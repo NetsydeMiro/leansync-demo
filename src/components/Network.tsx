@@ -27,10 +27,8 @@ export const Network = () => {
 
     return (
         <div>
-            <div>
+            <div className='computers'>
                 <Server notes={mockNetwork.server.notes} resolutionStrategy={mockNetwork.server.resolutionStrategy} dispatch={dispatch} />
-            </div>
-            <div>
                 {clients}
             </div>
             <button onClick={addClient}>Add Client</button>

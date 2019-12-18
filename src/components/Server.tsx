@@ -1,5 +1,5 @@
-import React, { useState, Dispatch, ReducerAction, Reducer } from 'react'
-import './Client.css'
+import React, { Dispatch, ReducerAction, Reducer } from 'react'
+import './Server.css'
 
 import { MockServer, MockNetwork, ActionType } from '../models/MockNetwork'
 import { BASIC_CONFLICT_RESOLUTION_STRATEGIES, BasicConflictResolutionStrategy } from 'leansync'
@@ -22,19 +22,22 @@ export const Server: React.FC<ServerProps> = (props) => {
     }
 
     return (
-        <div>
-            <h2>Server</h2>
+        <div className='computer server'>
+            <h2 className='computer-header'>Server</h2>
             <label>
                 Conflict Resolution Strategy
                 <select onChange={changeStrategyHandler}>
                     {strategyOptions}
                 </select>
             </label>
-            <br />
-            {noteComponents}
+            <div className='computer-wrapper server-wrapper'>
+                <div className='server-notes'>
+                    {noteComponents}
+                </div>
+            </div>
         </div>
     )
 }
 
-export default Server 
+export default Server
 

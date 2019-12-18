@@ -1,0 +1,21 @@
+.server-wrapper {
+    background-image: url('./Server.png');
+    width: 460px;
+    height: 620px;
+    margin: auto;
+}
+
+.server-notes {
+    text-align: left;
+    background-color: aliceblue;
+    position: relative;
+    left:72px;
+    top: 72px;
+    width: 316px;
+    max-height: 210px;
+    overflow-y: auto;
+}
+
+.server-note {
+    border:1px solid black;
+}

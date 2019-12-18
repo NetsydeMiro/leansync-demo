@@ -1,0 +1,27 @@
+.client-wrapper {
+    width:268px;
+    height: 512px;
+    background-image: url('Client.png');
+    position: relative;
+}
+
+.client-notes {
+    position: relative;
+    top: 85px;
+    left: 30px;
+    width: 207px;
+}
+
+.client-note {
+    width: 202px;
+}
+
+.client-buttons {
+    position: absolute;
+    bottom: 20px;
+    left: 60px;
+}
+
+.client-buttons button {
+    margin-left: 20px;
+}

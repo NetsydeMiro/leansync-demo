@@ -5,5 +5,5 @@ export interface ServerNoteProps {
 }
 
 export const ServerNote = (props: ServerNoteProps) => {
-    return <div>{props.noteText}</div>
+    return <div className='server-note'>{props.noteText}</div>
 }

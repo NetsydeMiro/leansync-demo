@@ -131,10 +131,47 @@ function processSync(network: MockNetwork, clientIndex: number, clientNotes: Arr
     clients[clientIndex] = updatedClient
 
     nw.clients = clients
+    nw.server = server
 
     delete nw.syncRequest
 
     return nw
+}
+
+export type ActionType = 
+    SetResolutionStrategyAction | 
+    AddClientAction | 
+    RemoveClientAction | 
+    SetClientOfflineAction | 
+    RequestSyncAction | 
+    ProcessSyncAction 
+
+export function mockNetworkReducer(network: MockNetwork, action: ActionType ): MockNetwork {
+    let modifiedNetwork: MockNetwork
+
+    switch(action.type) {
+        case 'setResolutionStrategy': 
+            modifiedNetwork = setResolutionStrategy(network, action.strategy) 
+            break
+        case 'addClient': 
+            modifiedNetwork = addClient(network) 
+            break
+        case 'removeClient': 
+            modifiedNetwork = removeClient(network, action.clientIndex) 
+            break
+        case 'setClientOffline': 
+            modifiedNetwork = setClientOffline(network, action.clientIndex, action.isOffline) 
+            break
+        case 'requestSync': 
+            modifiedNetwork = requestSync(network, action.clientIndex, action.clientNotes) 
+            break
+        case 'processSync': 
+            modifiedNetwork = processSync(network, action.clientIndex, action.clientNotes, action.serverNotes, action.syncStamp) 
+            break
+        default: assertNever(action)
+    }
+
+    return modifiedNetwork
 }
 
 export async function doSync(network: MockNetwork, clientIndex: number, clientNotes: Array<Note>): Promise<ProcessSyncAction> {
@@ -161,7 +198,7 @@ export async function doSync(network: MockNetwork, clientIndex: number, clientNo
 
     let clientConfig: LeanSyncClientConfig<Note> = {
         keySelector: (note) => note.id,
-        getClientEntitiesRequiringSync: clientDb.getRequiringSync,
+        getClientEntitiesRequiringSync: clientDb.getRequiringSync.bind(clientDb),
         getClientEntities: clientDb.getByKey,
         getLastSyncStamp: async () => client.lastSync,
         markSyncStamp: async (lastSync) => { syncStamp = lastSync },
@@ -185,32 +222,4 @@ export async function doSync(network: MockNetwork, clientIndex: number, clientNo
     }
 
     return action
-}
-
-export type ActionType = 
-    SetResolutionStrategyAction | 
-    AddClientAction | 
-    RemoveClientAction | 
-    SetClientOfflineAction | 
-    RequestSyncAction | 
-    ProcessSyncAction 
-
-export function mockNetworkReducer(network: MockNetwork, action: ActionType ): MockNetwork {
-    let modifiedNetwork: MockNetwork
-
-    switch(action.type) {
-        case 'setResolutionStrategy': 
-            modifiedNetwork = setResolutionStrategy(network, action.strategy); break
-        case 'addClient': 
-            modifiedNetwork = addClient(network); break
-        case 'removeClient': 
-            modifiedNetwork = removeClient(network, action.clientIndex); break
-        case 'setClientOffline': 
-            modifiedNetwork = setClientOffline(network, action.clientIndex, action.isOffline); break
-        case 'requestSync': 
-            modifiedNetwork = requestSync(network, action.clientIndex, action.clientNotes); break
-        default: assertNever(action)
-    }
-
-    return modifiedNetwork
 }

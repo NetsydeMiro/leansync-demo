@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/leansync-demo/static/css/main.ded2ac94.chunk.css",
+    "main.js": "/leansync-demo/static/js/main.92022539.chunk.js",
+    "main.js.map": "/leansync-demo/static/js/main.92022539.chunk.js.map",
+    "runtime-main.js": "/leansync-demo/static/js/runtime-main.dd0e1afd.js",
+    "runtime-main.js.map": "/leansync-demo/static/js/runtime-main.dd0e1afd.js.map",
+    "static/js/2.4ac51554.chunk.js": "/leansync-demo/static/js/2.4ac51554.chunk.js",
+    "static/js/2.4ac51554.chunk.js.map": "/leansync-demo/static/js/2.4ac51554.chunk.js.map",
+    "index.html": "/leansync-demo/index.html",
+    "precache-manifest.6ce1c20e6a96a15b084f69fef12e6254.js": "/leansync-demo/precache-manifest.6ce1c20e6a96a15b084f69fef12e6254.js",
+    "service-worker.js": "/leansync-demo/service-worker.js",
+    "static/css/main.ded2ac94.chunk.css.map": "/leansync-demo/static/css/main.ded2ac94.chunk.css.map",
+    "static/js/2.4ac51554.chunk.js.LICENSE": "/leansync-demo/static/js/2.4ac51554.chunk.js.LICENSE"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.dd0e1afd.js",
+    "static/js/2.4ac51554.chunk.js",
+    "static/css/main.ded2ac94.chunk.css",
+    "static/js/main.92022539.chunk.js"
+  ]
+}

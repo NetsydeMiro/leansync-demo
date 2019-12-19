@@ -10,6 +10,7 @@
         "@types/node": "^12.12.20",
         "@types/react": "^16.9.16",
         "@types/react-dom": "^16.9.4",
+        "bulma": "^0.8.0",
         "classnames": "^2.2.6",
         "leansync": "netsydemiro/leansync",
         "react": "^16.12.0",

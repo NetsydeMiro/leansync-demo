@@ -1,4 +1,4 @@
-import React, { useState, Dispatch, ReducerAction, Reducer } from 'react'
+import React, { useState, Dispatch, ReducerAction, Reducer, useEffect } from 'react'
 import './Client.css'
 
 import { MockClient, MockNetwork, ActionType } from '../models/MockNetwork'
@@ -12,6 +12,11 @@ export interface ClientProps extends MockClient {
 
 export const Client: React.FC<ClientProps> = (props) => {
     let [clientNotes, setNotes] = useState(props.notes)
+
+    useEffect(() => {
+        // update component state if props notes have changed (this would be due to a sync that occurred)
+        setNotes(props.notes)
+    }, [props.notes])
 
     // TODO: refactor with NotesDatabase?
     // TODO: add client note database & operations
@@ -55,21 +60,23 @@ export const Client: React.FC<ClientProps> = (props) => {
 
     return (
         <div className='computer client'>
-            <h2 className='computer-header'>
-                Client 
-                <a className='remove' title='Remove Client' onClick={removeClient}>{String.fromCharCode(10008)}</a>
-            </h2>
-            <label>
-                <input type='checkbox' onClick={toggleOffline} />
-                Is Offline
-            </label>
+            <div className='computer-header'>
+                <h2 className='title is-3'>
+                    Client 
+                    <a className='remove' title='Remove Client' onClick={removeClient}></a>
+                </h2>
+                <label className='offline checkbox'>
+                    <input type='checkbox' onClick={toggleOffline} />
+                    Offline
+                </label>
+            </div>
             <div className='computer-wrapper client-wrapper'>
                 <div className='client-notes'>
                     {noteComponents}
                 </div>
-                <div className='client-buttons'>
-                    <button onClick={addNote}>New</button>
-                    <button onClick={requestSync}>Sync</button>
+                <div className='client buttons are-small'>
+                    <button title='Add Note' className='new button is-success is-outlined' onClick={addNote}><span/></button>
+                    <button title='Sync Notes' className='sync button is-link is-outlined' onClick={requestSync}><span/></button>
                 </div>
             </div>
         </div>

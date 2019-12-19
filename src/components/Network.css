@@ -7,14 +7,16 @@
 }
 
 .computer-header {
-    margin-block-end: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.computer-header .title {
+    margin-bottom: 5px !important;
+    margin-left: 20px;
+    display: flex;
 }
 
 .computer-wrapper {
     margin-top: 10px !important;
-}
-
-.remove {
-    color:red;
-    cursor: pointer;
 }

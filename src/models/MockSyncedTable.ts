@@ -66,7 +66,7 @@ export class MockSyncedTable<EntityType extends Entity> {
 
     // client function
     async getRequiringSync(): Promise<Array<EntityType>> {
-        let rows = this.rows.filter(r => !r.syncedAt || r.updatedAt > r.syncedAt)
+        let rows = this.rows.filter(r => !r.syncedAt || (r.updatedAt > r.syncedAt))
         return this.clone(rows)
     }
 

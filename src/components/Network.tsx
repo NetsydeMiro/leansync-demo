@@ -23,15 +23,12 @@ export const Network = () => {
         return <Client key={ix} clientIndex={ix} notes={client.notes} dispatch={dispatch} />
     })
 
-    let addClient = () => dispatch({ type: 'addClient' })
-
     return (
         <div>
             <div className='computers'>
                 <Server notes={mockNetwork.server.notes} resolutionStrategy={mockNetwork.server.resolutionStrategy} dispatch={dispatch} />
                 {clients}
             </div>
-            <button onClick={addClient}>Add Client</button>
         </div>
     )
 }

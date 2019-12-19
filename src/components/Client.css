@@ -16,12 +16,39 @@
     width: 202px;
 }
 
-.client-buttons {
-    position: absolute;
-    bottom: 20px;
-    left: 60px;
+.offline.checkbox {
+    margin-top: 12px;
+    margin-right: 5px;
 }
 
-.client-buttons button {
-    margin-left: 20px;
+.offline.checkbox input {
+    margin-right: 3px;
+}
+
+a.remove:after {
+    margin-left:5px;
+    content: '\2718'; /* heavey ballot x */
+    cursor: pointer;
+    color: red;
+}
+
+.client.buttons {
+    position: absolute;
+    bottom: 15px;
+    left: 80px;
+}
+
+.client.buttons button span {
+    margin-top: -16px;
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+.new.button span:after {
+    content: '\271A'; /* heavy greek cross */
+}
+
+.sync.button span:after {
+    content: '\21C5';  /* up arrow left of down arrow */
+    /* content: '\27F2'; */ /* clockwise gapped circle arrow */
 }

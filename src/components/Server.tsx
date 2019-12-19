@@ -21,20 +21,32 @@ export const Server: React.FC<ServerProps> = (props) => {
         props.dispatch({ type: 'setResolutionStrategy', strategy: e.target.value as BasicConflictResolutionStrategy })
     }
 
+    let addClient = () => props.dispatch({ type: 'addClient' })
+
     return (
         <div className='computer server'>
-            <h2 className='computer-header'>Server</h2>
-            <label>
-                Conflict Resolution Strategy
-                <select onChange={changeStrategyHandler}>
-                    {strategyOptions}
-                </select>
-            </label>
+            <div className='computer-header'>
+                <h3 className='title is-3'>Server</h3>
+                <button className='button' onClick={addClient}>Add Client</button>
+            </div>
+
             <div className='computer-wrapper server-wrapper'>
                 <div className='server-notes'>
                     {noteComponents}
                 </div>
+
+                <div id='resolution-strategy'>
+                    <label>
+                        Conflict Resolution Strategy <br />
+                        <div className='select'>
+                            <select onChange={changeStrategyHandler}>
+                                {strategyOptions}
+                            </select>
+                        </div>
+                    </label>
+                </div>
             </div>
+
         </div>
     )
 }

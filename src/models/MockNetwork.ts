@@ -182,10 +182,10 @@ export async function doSync(network: MockNetwork, clientIndex: number, clientNo
         entityKey: (note) => note.id,
         entityLastUpdated: (note) => note.updatedAt, 
         areEntitiesEqual: (note1, note2) => note1.text == note2.text, 
-        getServerEntities: (keys) => serverDb.getByKey(keys), 
-        getServerEntitiesSyncedSince: (syncStamp) => serverDb.getSyncedSince(syncStamp), 
-        updateServerEntity: (clientEntity, syncStamp) => serverDb.update(clientEntity, syncStamp), 
-        createServerEntity: (clientEntity, syncStamp) => serverDb.add(clientEntity, syncStamp), 
+        getServerEntities: serverDb.getByKey.bind(serverDb), 
+        getServerEntitiesSyncedSince: serverDb.getSyncedSince.bind(serverDb), 
+        updateServerEntity: serverDb.update.bind(serverDb), 
+        createServerEntity: serverDb.add.bind(serverDb), 
         conflictResolutionStrategy: network.server.resolutionStrategy
     }
 
@@ -199,7 +199,7 @@ export async function doSync(network: MockNetwork, clientIndex: number, clientNo
     let clientConfig: LeanSyncClientConfig<Note> = {
         keySelector: (note) => note.id,
         getClientEntitiesRequiringSync: clientDb.getRequiringSync.bind(clientDb),
-        getClientEntities: clientDb.getByKey,
+        getClientEntities: clientDb.getByKey.bind(clientDb),
         getLastSyncStamp: async () => client.lastSync,
         markSyncStamp: async (lastSync) => { syncStamp = lastSync },
         updateEntity: async (note, syncStamp, originalKey) => { clientDb.update(note, syncStamp, originalKey) },

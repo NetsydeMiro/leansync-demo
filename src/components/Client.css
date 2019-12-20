@@ -10,10 +10,12 @@
     top: 85px;
     left: 30px;
     width: 207px;
+    max-height: 350px;
+    overflow-y: auto;
 }
 
 .client-note {
-    width: 202px;
+    width: 190px;
 }
 
 .offline.checkbox {
@@ -26,6 +28,8 @@
 }
 
 a.remove:after {
+    vertical-align: super;
+    font-size: small;
     margin-left:5px;
     content: '\2718'; /* heavey ballot x */
     cursor: pointer;

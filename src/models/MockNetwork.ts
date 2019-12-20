@@ -201,7 +201,7 @@ export async function doSync(network: MockNetwork, clientIndex: number, clientNo
         getClientEntitiesRequiringSync: clientDb.getRequiringSync.bind(clientDb),
         getClientEntities: clientDb.getByKey.bind(clientDb),
         getLastSyncStamp: async () => client.lastSync,
-        markSyncStamp: async (lastSync) => { syncStamp = lastSync },
+        markSyncStamp: async (lastSync) => { client.lastSync = lastSync },
         updateEntity: async (note, syncStamp, originalKey) => { clientDb.update(note, syncStamp, originalKey) },
         createEntity: async (note) => { clientDb.add(note) },
         syncWithServer: async (entities, lastSync) => {

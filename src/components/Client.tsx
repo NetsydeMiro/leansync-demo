@@ -2,7 +2,7 @@ import React, { useState, Dispatch, ReducerAction, Reducer, useEffect } from 're
 import './Client.css'
 
 import { MockClient, MockNetwork, ActionType } from '../models/MockNetwork'
-import { Note, newNote } from '../models/Note'
+import { Note, newNote, NotesDatabase } from '../models/Note'
 import { ClientNote } from './ClientNote'
 
 export interface ClientProps extends MockClient {
@@ -54,16 +54,18 @@ export const Client: React.FC<ClientProps> = (props) => {
         props.dispatch({ type: 'removeClient', clientIndex: props.clientIndex })
     }
 
-    let requestSync = () => {
-        props.dispatch({ type: 'requestSync', clientIndex: props.clientIndex, clientNotes })
+    let requestSync = async () => {
+        let db = new NotesDatabase(clientNotes)
+        let requiringSync = await db.getRequiringSync()
+        props.dispatch({ type: 'requestSync', clientIndex: props.clientIndex, clientNotes: requiringSync })
     }
 
     return (
         <div className='computer client'>
             <div className='computer-header'>
                 <h2 className='title is-3'>
-                    Client 
                     <a className='remove' title='Remove Client' onClick={removeClient}></a>
+                    Client 
                 </h2>
                 <label className='offline checkbox'>
                     <input type='checkbox' onClick={toggleOffline} />

@@ -1,37 +1,31 @@
 import { Note, NotesDatabase, newNote } from './Note'
-import { BasicConflictResolutionStrategy, LeanSyncServer, LeanSyncServerConfig } from 'leansync'
+import { BasicConflictResolutionStrategy, LeanSyncServer, LeanSyncServerConfig, SyncResponse } from 'leansync'
 import { LeanSyncClient, LeanSyncClientConfig } from 'leansync'
 import { assertNever } from '../utility'
 
+export interface SyncRequest<T> {
+    clientIndex: number
+    notes: Array<T>
+    lastSync?: Date
+}
+
 export interface MockServer {
-    notes:  Array<Note>
     resolutionStrategy: BasicConflictResolutionStrategy
+    syncRequest?: SyncRequest<Note>
 }
 
 export interface MockClient {
-    notes: Array<Note>
-    lastSync?: Date
     isOffline?: boolean
-}
-
-export interface SyncRequest {
-    clientIndex: number
-    clientNotes: Array<Note>
-}
-
-export interface SyncResult {
-    clientNotes: Array<Note>
-    serverNotes: Array<Note>
+    syncResponse?: SyncResponse<Note>
 }
 
 export interface MockNetwork {
     server: MockServer
     clients: Array<MockClient>
-    syncRequest?: SyncRequest
 }
 
 export const initialNetwork: MockNetwork = {
-    server: { notes: [], resolutionStrategy: 'takeClient' },
+    server: { resolutionStrategy: 'takeClient' },
     clients: [],
 }
 
@@ -56,7 +50,7 @@ function addClient(network: MockNetwork): MockNetwork {
     let nw = { ...network }
 
     nw.clients = network.clients.slice()
-    nw.clients.push({ notes: [] })
+    nw.clients.push({})
 
     return nw
 }
@@ -90,50 +84,61 @@ function setClientOffline(network: MockNetwork, clientIndex: number, isOffline: 
     return nw
 }
 
-interface RequestSyncAction {
+interface RequestSyncAction  {
     type: 'requestSync'
-    clientIndex: number
-    clientNotes: Array<Note>
+    request: SyncRequest<Note>
 }
 
-function requestSync(network: MockNetwork, clientIndex: number, clientNotes: Array<Note>): MockNetwork {
+function requestSync(network: MockNetwork, syncRequest: SyncRequest<Note>): MockNetwork {
     let nw = { ...network }
 
-    let syncRequest: SyncRequest = {
-        clientIndex, 
-        clientNotes
-    }
+    let server = { ...nw.server }
+    server.syncRequest = syncRequest
 
-    nw.syncRequest = syncRequest
+    nw.server = server
 
     return nw
 }
 
-interface ProcessSyncAction {
-    type: 'processSync'
-    clientIndex: number
-    clientNotes: Array<Note>
-    serverNotes: Array<Note>
-    syncStamp: Date
+interface RespondSyncAction {
+    type: 'respondSync'
+    response: SyncResponse<Note>
 }
 
-function processSync(network: MockNetwork, clientIndex: number, clientNotes: Array<Note>, serverNotes: Array<Note>, syncStamp: Date): MockNetwork {
+export function respondSync(network: MockNetwork, syncResponse: SyncResponse<Note>): MockNetwork {
+    // this shouldn't happen, but does.  TODO: investigate double rendering
+    if (!network.server.syncRequest) return network 
+
     let nw = { ...network }
 
+    let clientIndex = nw.server.syncRequest!.clientIndex
+
     let server = { ...nw.server }
-    server.notes = serverNotes
-
-    let clients = nw.clients.slice()
-    let updatedClient = { ...clients[clientIndex] }
-
-    updatedClient.notes = clientNotes
-    updatedClient.lastSync = syncStamp
-    clients[clientIndex] = updatedClient
-
-    nw.clients = clients
+    delete server.syncRequest
     nw.server = server
 
-    delete nw.syncRequest
+    nw.clients = nw.clients.slice()
+    let client = { ...nw.clients[clientIndex] }
+    client.syncResponse = syncResponse
+
+    nw.clients[clientIndex] = client
+
+    return nw
+}
+
+export interface AcknowledgeSyncAction {
+    type: 'acknowledgeSync'
+    clientIndex: number
+}
+
+export function acknowledgeSync(network: MockNetwork, clientIndex: number): MockNetwork {
+    let nw = { ...network }
+
+    nw.clients = nw.clients.slice()
+    let client = { ...nw.clients[clientIndex] }
+    delete client.syncResponse
+
+    nw.clients[clientIndex] = client
 
     return nw
 }
@@ -144,7 +149,8 @@ export type ActionType =
     RemoveClientAction | 
     SetClientOfflineAction | 
     RequestSyncAction | 
-    ProcessSyncAction 
+    RespondSyncAction |
+    AcknowledgeSyncAction
 
 export function mockNetworkReducer(network: MockNetwork, action: ActionType ): MockNetwork {
     let modifiedNetwork: MockNetwork
@@ -163,63 +169,16 @@ export function mockNetworkReducer(network: MockNetwork, action: ActionType ): M
             modifiedNetwork = setClientOffline(network, action.clientIndex, action.isOffline) 
             break
         case 'requestSync': 
-            modifiedNetwork = requestSync(network, action.clientIndex, action.clientNotes) 
+            modifiedNetwork = requestSync(network, action.request) 
             break
-        case 'processSync': 
-            modifiedNetwork = processSync(network, action.clientIndex, action.clientNotes, action.serverNotes, action.syncStamp) 
+        case 'respondSync': 
+            modifiedNetwork = respondSync(network, action.response)
+            break
+        case 'acknowledgeSync': 
+            modifiedNetwork = acknowledgeSync(network, action.clientIndex)
             break
         default: assertNever(action)
     }
 
     return modifiedNetwork
-}
-
-export async function doSync(network: MockNetwork, clientIndex: number, clientNotes: Array<Note>): Promise<ProcessSyncAction> {
-    let serverDb = new NotesDatabase(network.server.notes)
-    let clientDb = new NotesDatabase(clientNotes)
-
-    let serverConfig: LeanSyncServerConfig<Note> = {
-        entityKey: (note) => note.id,
-        entityLastUpdated: (note) => note.updatedAt, 
-        areEntitiesEqual: (note1, note2) => note1.text == note2.text, 
-        getServerEntities: serverDb.getByKey.bind(serverDb), 
-        getServerEntitiesSyncedSince: serverDb.getSyncedSince.bind(serverDb), 
-        updateServerEntity: serverDb.update.bind(serverDb), 
-        createServerEntity: serverDb.add.bind(serverDb), 
-        conflictResolutionStrategy: network.server.resolutionStrategy
-    }
-
-    let leanServer = new LeanSyncServer(serverConfig)
-
-    let client = network.clients[clientIndex]
-
-    // we'll record the sync stamp here
-    let syncStamp = new Date()
-
-    let clientConfig: LeanSyncClientConfig<Note> = {
-        keySelector: (note) => note.id,
-        getClientEntitiesRequiringSync: clientDb.getRequiringSync.bind(clientDb),
-        getClientEntities: clientDb.getByKey.bind(clientDb),
-        getLastSyncStamp: async () => client.lastSync,
-        markSyncStamp: async (lastSync) => { client.lastSync = lastSync },
-        updateEntity: async (note, syncStamp, originalKey) => { clientDb.update(note, syncStamp, originalKey) },
-        createEntity: async (note) => { clientDb.add(note) },
-        syncWithServer: async (entities, lastSync) => {
-            return leanServer.sync(entities, lastSync)
-        },
-    }
-
-    let leanClient = new LeanSyncClient(clientConfig)
-
-    await leanClient.sync()
-
-    let action: ProcessSyncAction = {
-        type: "processSync", 
-        clientIndex, 
-        serverNotes: serverDb.rows, 
-        clientNotes: clientDb.rows, 
-        syncStamp
-    }
-
-    return action
 }

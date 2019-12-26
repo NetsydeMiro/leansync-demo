@@ -3,13 +3,13 @@ import classNames from 'classnames'
 
 export interface ClientNoteProps {
     noteText: string
-    hasChanges: boolean
+    // hasChanges: boolean
     onChange: (val: string) => void
 }
 
 export const ClientNote = (props: ClientNoteProps) => {
-    let { hasChanges } = props
-    let className = classNames({ 'client-note': true, hasChanges })
+    // let { hasChanges } = props
+    let className = classNames({ 'client-note': true }) //, hasChanges })
 
     return (
         <textarea

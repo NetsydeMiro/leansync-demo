@@ -1,4 +1,4 @@
-import React, { useState, Dispatch, ReducerAction, Reducer, useEffect } from 'react'
+import React, { useState, Dispatch, ReducerAction, Reducer, useRef, useEffect } from 'react'
 import './Client.css'
 
 import { LeanSyncClient, LeanSyncClientConfig, SyncResponse } from 'leansync'
@@ -64,17 +64,17 @@ export const Client: React.FC<ClientProps> = (props) => {
 
             syncWithServer: async (entities, lastSync) => {
                 let request: SyncRequest<Note> = {
-                    clientIndex:props.clientIndex, 
-                    notes: entities, 
+                    clientIndex: props.clientIndex,
+                    notes: entities,
                     lastSync
                 }
 
                 props.dispatch({ type: 'requestSync', request })
 
                 let fakeResponse: SyncResponse<Note> = {
-                    newEntities: [], 
+                    newEntities: [],
                     syncedEntities: [],
-                    conflictedEntities: [], 
+                    conflictedEntities: [],
                     syncStamp: new Date()
                 }
 
@@ -93,47 +93,49 @@ export const Client: React.FC<ClientProps> = (props) => {
             .catch(ex => { throw console.log(ex) })
     }
 
-    if (props.syncResponse) {
-        let clientDb = new NotesDatabase(clientNotes)
+    useEffect(() => {
 
-        let clientConfig: LeanSyncClientConfig<Note> = {
-            keySelector: (note) => note.id,
-            getClientEntitiesRequiringSync: clientDb.getRequiringSync.bind(clientDb),
-            getClientEntities: clientDb.getByKey.bind(clientDb),
-            getLastSyncStamp: async () => lastSync,
-            markSyncStamp: async (lastSync) => { setLastSync(lastSync) },
-            updateEntity: async (note, syncStamp, originalKey) => { clientDb.update(note, syncStamp, originalKey) },
-            createEntity: async (note) => { clientDb.add(note) },
+        if (props.syncResponse) {
+            let clientDb = new NotesDatabase(clientNotes)
 
-            syncWithServer: async (entities, lastSync) => {
-                let request: SyncRequest<Note> = {
-                    clientIndex:props.clientIndex, 
-                    notes: entities, 
-                    lastSync
-                }
+            let clientConfig: LeanSyncClientConfig<Note> = {
+                keySelector: (note) => note.id,
+                getClientEntitiesRequiringSync: clientDb.getRequiringSync.bind(clientDb),
+                getClientEntities: clientDb.getByKey.bind(clientDb),
+                getLastSyncStamp: async () => lastSync,
+                markSyncStamp: async (lastSync) => { setLastSync(lastSync) },
+                updateEntity: async (note, syncStamp, originalKey) => { clientDb.update(note, syncStamp, originalKey) },
+                createEntity: async (note) => { clientDb.add(note) },
 
-                props.dispatch({ type: 'requestSync', request })
+                syncWithServer: async (entities, lastSync) => {
+                    let request: SyncRequest<Note> = {
+                        clientIndex: props.clientIndex,
+                        notes: entities,
+                        lastSync
+                    }
 
-                let fakeResponse: SyncResponse<Note> = {
-                    newEntities: [], 
-                    syncedEntities: [],
-                    conflictedEntities: [], 
-                    syncStamp: new Date()
-                }
+                    props.dispatch({ type: 'requestSync', request })
 
-                return Promise.resolve(fakeResponse)
-            },
+                    let fakeResponse: SyncResponse<Note> = {
+                        newEntities: [],
+                        syncedEntities: [],
+                        conflictedEntities: [],
+                        syncStamp: new Date()
+                    }
+
+                    return Promise.resolve(fakeResponse)
+                },
+            }
+
+            let leanClient = new LeanSyncClient(clientConfig)
+
+            leanClient.processSyncResponse(props.syncResponse)
+
+            setClientNotes(clientDb.rows)
+            props.dispatch({ type: 'acknowledgeSync', clientIndex: props.clientIndex })
         }
 
-        let leanClient = new LeanSyncClient(clientConfig)
-
-        leanClient.processSyncResponse(props.syncResponse)
-
-        setClientNotes(clientDb.rows)
-        setLastSync(props.syncResponse.syncStamp)
-
-        props.dispatch({ type: 'acknowledgeSync', clientIndex: props.clientIndex })
-    }
+    }, [props.syncResponse])
 
     return (
         <div className='computer client'>

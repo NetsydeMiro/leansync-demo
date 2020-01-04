@@ -12,7 +12,7 @@ export const Network = () => {
     const [mockNetwork, dispatch] = useReducer(mockNetworkReducer, initialNetwork)
 
     let clients = mockNetwork.clients.map((client, ix) => {
-        return <Client key={ix} clientIndex={ix} isOffline={client.isOffline} dispatch={dispatch} />
+        return <Client key={ix} clientIndex={ix} isOffline={client.isOffline} dispatch={dispatch} syncResponse={client.syncResponse} />
     })
 
     return (

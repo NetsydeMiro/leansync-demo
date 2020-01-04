@@ -60,7 +60,7 @@ export const Client: React.FC<ClientProps> = (props) => {
             getLastSyncStamp: async () => lastSync,
             markSyncStamp: async (lastSync) => { setLastSync(lastSync) },
             updateEntity: async (note, syncStamp, originalKey) => { clientDb.update(note, syncStamp, originalKey) },
-            createEntity: async (note) => { clientDb.add(note) },
+            createEntity: async (note, syncStamp) => { clientDb.add(note, syncStamp) },
 
             syncWithServer: async (entities, lastSync) => {
                 let request: SyncRequest<Note> = {
@@ -105,7 +105,7 @@ export const Client: React.FC<ClientProps> = (props) => {
                 getLastSyncStamp: async () => lastSync,
                 markSyncStamp: async (lastSync) => { setLastSync(lastSync) },
                 updateEntity: async (note, syncStamp, originalKey) => { clientDb.update(note, syncStamp, originalKey) },
-                createEntity: async (note) => { clientDb.add(note) },
+                createEntity: async (note, syncStamp) => { clientDb.add(note, syncStamp) },
 
                 syncWithServer: async (entities, lastSync) => {
                     let request: SyncRequest<Note> = {
